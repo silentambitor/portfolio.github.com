@@ -66,11 +66,9 @@
             color: #f3f4f6;
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            /* Use relative units for base font to allow user scaling */
             font-size: 1rem; 
         }
 
-        /* Glassmorphism utilities */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(1rem);
@@ -85,27 +83,23 @@
             border-bottom: 1px solid var(--glass-border);
         }
 
-        /* Skill Selection Styling */
         .skill-card-selected {
             border-color: #8b5cf6 !important;
             background: rgba(139, 92, 246, 0.15) !important;
             box-shadow: 0 0 1.5rem rgba(139, 92, 246, 0.2);
         }
 
-        /* Gradient Text */
         .gradient-text {
             background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 0.5rem; }
         ::-webkit-scrollbar-track { background: #0b0f19; }
         ::-webkit-scrollbar-thumb { background: #222f47; border-radius: 0.25rem; }
         ::-webkit-scrollbar-thumb:hover { background: #8b5cf6; }
 
-        /* Smooth transitions */
         .page-transition {
             transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
         }
@@ -117,63 +111,51 @@
     <div class="fixed inset-0 pointer-events-none z-0" style="background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 3rem 3rem;"></div>
 
     <!-- ========================================== -->
-    <!-- STEP 1: ONBOARDING SCREEN                  -->
+    <!-- ONBOARDING SCREEN                          -->
     <!-- ========================================== -->
     <div id="onboarding-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-base page-transition">
         <div class="relative w-full max-w-2xl p-6 sm:p-10 rounded-2xl glass-card shadow-2xl">
             
             <div class="text-center mb-8">
-                <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">
-                    Set Up Your <span class="gradient-text">Portfolio</span>
+                <h1 id="onboarding-title" class="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">
+                    Access Your <span class="gradient-text">Portfolio</span>
                 </h1>
-                <p class="text-gray-400 text-sm">Enter your details to generate your customized experience.</p>
+                <p id="onboarding-desc" class="text-gray-400 text-sm">Sign in to manage or create your personalized workspace.</p>
             </div>
 
-            <form id="onboarding-form" onsubmit="handleOnboardingSubmit(event)" class="space-y-6">
-                <!-- Name Input -->
-                <div>
-                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-400 mb-2">What's your name?</label>
-                    <input 
-                        type="text" 
-                        id="user-name-input" 
-                        required
-                        placeholder="e.g., Alex Rivera" 
-                        class="w-full px-4 py-3 bg-dark-base border border-dark-border rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-accent transition-colors text-sm"
-                        oninput="validateOnboardingForm()"
-                    />
-                </div>
+            <!-- Sign In Section -->
+            <div id="auth-section" class="space-y-4 text-center">
+                <button type="button" onclick="signInWithGoogle()" class="w-full py-4 rounded-xl font-bold text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-colors shadow-lg flex justify-center items-center gap-3">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+            </div>
 
-                <!-- Gmail Input -->
-                <div>
-                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-400 mb-2">Your Gmail Address</label>
-                    <input 
-                        type="email" 
-                        id="user-email-input" 
-                        required
-                        placeholder="e.g., alex.rivera@gmail.com" 
-                        class="w-full px-4 py-3 bg-dark-base border border-dark-border rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-accent transition-colors text-sm"
-                        oninput="validateOnboardingForm()"
-                    />
+            <!-- Skills Setup Form (Shown only for new users after sign-in) -->
+            <form id="onboarding-form" onsubmit="handleOnboardingSubmit(event)" class="space-y-6 hidden">
+                <div class="text-center mb-6">
+                    <p class="text-brand-accent font-semibold text-sm">Welcome, <span id="new-user-name"></span>!</p>
                 </div>
-
-                <!-- Multi-select Skills -->
+                
                 <div>
                     <label class="block text-xs uppercase tracking-wider font-semibold text-gray-400 mb-2">
                         What do you do? <span class="lowercase text-gray-500 font-normal">(Select all that apply)</span>
                     </label>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <!-- Coding -->
                         <div onclick="toggleSkillCard('coding')" id="card-coding" class="cursor-pointer relative p-4 rounded-xl border border-dark-border bg-dark-base/50 hover:border-brand-accent/50 transition-all flex flex-col items-center text-center">
                             <i data-lucide="code" class="w-6 h-6 text-gray-400 mb-2" id="icon-coding"></i>
                             <span class="font-semibold text-sm text-gray-200">Coding</span>
                         </div>
-                        <!-- Editing -->
                         <div onclick="toggleSkillCard('editing')" id="card-editing" class="cursor-pointer relative p-4 rounded-xl border border-dark-border bg-dark-base/50 hover:border-brand-accent/50 transition-all flex flex-col items-center text-center">
                             <i data-lucide="video" class="w-6 h-6 text-gray-400 mb-2" id="icon-editing"></i>
                             <span class="font-semibold text-sm text-gray-200">Editing</span>
                         </div>
-                        <!-- Thumbnail Designing -->
                         <div onclick="toggleSkillCard('thumbnails')" id="card-thumbnails" class="cursor-pointer relative p-4 rounded-xl border border-dark-border bg-dark-base/50 hover:border-brand-accent/50 transition-all flex flex-col items-center text-center">
                             <i data-lucide="image" class="w-6 h-6 text-gray-400 mb-2" id="icon-thumbnails"></i>
                             <span class="font-semibold text-sm text-gray-200">Thumbnail Design</span>
@@ -182,26 +164,34 @@
                     <p id="skill-error" class="text-xs text-rose-400 mt-2 hidden">Please select at least one skill.</p>
                 </div>
 
-                <!-- Submit Button -->
                 <button 
                     type="submit" 
                     id="submit-onboarding-btn" 
                     disabled 
                     class="w-full py-4 rounded-xl font-bold text-white bg-brand-accent hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg flex justify-center items-center gap-2"
                 >
-                    Continue to Portfolio <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    Complete Setup <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
             </form>
         </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- STEP 2: MAIN PORTFOLIO SCREEN              -->
+    <!-- MAIN PORTFOLIO SCREEN                      -->
     <!-- ========================================== -->
     <div id="portfolio-screen" class="relative z-10 hidden opacity-0 page-transition flex flex-col min-h-screen">
         
         <!-- HEADER -->
         <header class="sticky top-0 z-40 w-full glass-nav">
+            <!-- Share Banner (Visible only to owner) -->
+            <div id="share-banner" class="hidden bg-brand-accent/10 border-b border-brand-accent/20 py-2 px-4 text-center flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+                <span class="text-xs sm:text-sm text-gray-300">Your Shareable Link:</span>
+                <code id="share-link-text" class="text-[10px] sm:text-xs bg-dark-base/80 px-2 py-1 rounded text-brand-accent border border-brand-accent/20 select-all truncate max-w-[200px] sm:max-w-md"></code>
+                <button onclick="copyShareLink()" class="p-1.5 bg-dark-base border border-dark-border hover:bg-white/10 rounded-md transition-colors text-white flex-shrink-0" title="Copy Link">
+                    <i data-lucide="copy" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                </button>
+            </div>
+
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
                 <!-- Logo -->
                 <a href="#hero" class="flex items-center gap-3">
@@ -220,9 +210,9 @@
 
                 <!-- Actions -->
                 <div class="flex items-center gap-2 sm:gap-4">
-                    <button onclick="resetProfile()" class="px-3 py-2 rounded-lg text-xs font-semibold text-gray-400 hover:text-white border border-dark-border hover:border-brand-accent transition-colors flex items-center gap-2">
-                        <i data-lucide="settings-2" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Edit Profile</span>
+                    <button id="auth-action-btn" onclick="signOutUser()" class="px-3 py-2 rounded-lg text-xs font-semibold text-gray-400 hover:text-white border border-dark-border hover:border-brand-accent transition-colors flex items-center gap-2">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Sign Out</span>
                     </button>
                     <!-- Mobile Menu Toggle -->
                     <button onclick="toggleMobileMenu()" class="p-2 md:hidden text-gray-400 hover:text-white">
@@ -278,7 +268,7 @@
             <section id="projects" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-dark-border">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
                     <h2 class="text-2xl sm:text-3xl font-bold text-white">Project Showcase</h2>
-                    <button onclick="openProjectModal()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-brand-accent text-white transition-colors flex items-center gap-2 text-sm font-semibold border border-white/20 hover:border-brand-accent">
+                    <button id="add-project-btn" onclick="openProjectModal()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-brand-accent text-white transition-colors flex items-center gap-2 text-sm font-semibold border border-white/20 hover:border-brand-accent hidden">
                         <i data-lucide="plus" class="w-4 h-4"></i> Add Project
                     </button>
                 </div>
@@ -316,7 +306,7 @@
 
         <!-- FOOTER -->
         <footer class="py-6 border-t border-dark-border text-center text-sm text-gray-500">
-            <p>&copy; <span id="year"></span> <span id="footer-name">Portfolio</span>. Built with HTML, CSS, & JS.</p>
+            <p>&copy; <span id="year"></span> <span id="footer-name">Portfolio</span>. Built with HTML, CSS, JS & Firebase.</p>
         </footer>
     </div>
 
@@ -350,7 +340,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Upload Image (Max ~2MB)</label>
+                    <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Upload Image</label>
                     <input type="file" id="proj-image" accept="image/*" required onchange="handleImageUpload(event)" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-accent file:text-white hover:file:bg-purple-500 cursor-pointer"/>
                     <img id="proj-image-preview" src="" class="hidden mt-2 rounded-lg max-h-32 object-cover w-full border border-dark-border" />
                 </div>
@@ -370,66 +360,130 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- JAVASCRIPT LOGIC                           -->
+    <!-- FIREBASE & JAVASCRIPT LOGIC                -->
     <!-- ========================================== -->
-    <script>
-        // Data Schema
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAs_ep4eiET7esNi0XFpLkaL6_QQIiUr_k",
+            authDomain: "silent-coder-portfolio.firebaseapp.com",
+            projectId: "silent-coder-portfolio",
+            storageBucket: "silent-coder-portfolio.firebasestorage.app",
+            messagingSenderId: "479634593024",
+            appId: "1:479634593024:web:fd150a0d76f21f1a798fe5",
+            measurementId: "G-JDH10N42J4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
         let appData = {
             name: '',
             email: '',
-            skills: [], // 'coding', 'editing', 'thumbnails'
+            skills: [], 
             projects: [] 
         };
 
         let tempBase64Image = '';
         let currentFilter = 'all';
+        let isReadOnly = false;
+        let currentUserUid = null;
+        let temporaryGoogleUser = null;
 
-        // Constants
         const SKILL_CONFIG = {
             coding: { label: 'Coding', icon: 'code', desc: 'Developing clean, modern, and responsive applications.' },
             editing: { label: 'Editing', icon: 'video', desc: 'Crafting compelling visual stories through video.' },
             thumbnails: { label: 'Thumbnail Design', icon: 'image', desc: 'Designing high-CTR visual graphics.' }
         };
 
-        // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('year').textContent = new Date().getFullYear();
             if (typeof lucide !== 'undefined') lucide.createIcons();
-            
             init();
         });
 
-        function init() {
-            const savedData = localStorage.getItem('portfolioData');
-            
-            if (savedData) {
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewUserId = urlParams.get('user');
+
+            if (viewUserId) {
+                // READ-ONLY MODE
+                isReadOnly = true;
                 try {
-                    appData = JSON.parse(savedData);
-                    // Minimal validation to ensure data isn't corrupt
-                    if(appData.name && appData.email && appData.skills.length > 0) {
+                    const docSnap = await getDoc(doc(db, "users", viewUserId));
+                    if (docSnap.exists()) {
+                        appData = docSnap.data();
+                        if (!appData.projects) appData.projects = [];
                         showPortfolio();
-                        return;
+                    } else {
+                        showToast("User portfolio not found.");
+                        showOnboarding();
                     }
                 } catch (e) {
-                    console.error('Error parsing localStorage data', e);
+                    console.error("Error fetching data:", e);
+                    showToast("Error loading portfolio.");
                 }
+            } else {
+                // EDITABLE MODE
+                isReadOnly = false;
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentUserUid = user.uid;
+                        try {
+                            const docSnap = await getDoc(doc(db, "users", user.uid));
+                            if (docSnap.exists()) {
+                                appData = docSnap.data();
+                                if (!appData.projects) appData.projects = [];
+                                showPortfolio();
+                            } else {
+                                // User signed in but has no Firestore doc yet -> show skills setup
+                                temporaryGoogleUser = user;
+                                document.getElementById('new-user-name').textContent = user.displayName?.split(' ')[0] || 'User';
+                                document.getElementById('auth-section').classList.add('hidden');
+                                document.getElementById('onboarding-form').classList.remove('hidden');
+                                document.getElementById('onboarding-title').innerHTML = `Select Your <span class="gradient-text">Skills</span>`;
+                                document.getElementById('onboarding-desc').textContent = "Pick your core disciplines to finalize your portfolio.";
+                                showOnboarding();
+                            }
+                        } catch (err) {
+                            showToast("Error fetching your data.");
+                        }
+                    } else {
+                        currentUserUid = null;
+                        document.getElementById('auth-section').classList.remove('hidden');
+                        document.getElementById('onboarding-form').classList.add('hidden');
+                        showOnboarding();
+                    }
+                });
             }
-            // Fallback to onboarding
-            showOnboarding();
         }
 
-        // --- ONBOARDING LOGIC ---
         function showOnboarding() {
             document.getElementById('portfolio-screen').classList.add('hidden');
             document.getElementById('onboarding-screen').classList.remove('hidden');
-            // Small delay to trigger transition
             setTimeout(() => {
                 document.getElementById('onboarding-screen').style.opacity = '1';
                 document.getElementById('onboarding-screen').style.transform = 'scale(1)';
             }, 50);
         }
 
-        function toggleSkillCard(skill) {
+        window.signInWithGoogle = async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch(e) {
+                console.error("Google Sign-In Error", e);
+                showToast("Sign in failed. Please try again.");
+            }
+        };
+
+        window.toggleSkillCard = (skill) => {
             const index = appData.skills.indexOf(skill);
             const card = document.getElementById(`card-${skill}`);
             const icon = document.getElementById(`icon-${skill}`);
@@ -446,79 +500,104 @@
                 icon.classList.remove('text-brand-accent');
             }
             validateOnboardingForm();
-        }
+        };
 
         function validateOnboardingForm() {
-            const name = document.getElementById('user-name-input').value.trim();
-            const email = document.getElementById('user-email-input').value.trim();
             const btn = document.getElementById('submit-onboarding-btn');
             const error = document.getElementById('skill-error');
-            
-            const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
             const hasSkills = appData.skills.length > 0;
 
-            if (!hasSkills && name.length > 0) {
+            if (!hasSkills) {
                 error.classList.remove('hidden');
+                btn.disabled = true;
             } else {
                 error.classList.add('hidden');
+                btn.disabled = false;
             }
-
-            btn.disabled = !(name && isValidEmail && hasSkills);
         }
 
-        function handleOnboardingSubmit(e) {
+        window.handleOnboardingSubmit = async (e) => {
             e.preventDefault();
-            appData.name = document.getElementById('user-name-input').value.trim();
-            appData.email = document.getElementById('user-email-input').value.trim();
+            if(!temporaryGoogleUser) return;
             
-            saveData();
+            appData.name = temporaryGoogleUser.displayName || 'Anonymous';
+            appData.email = temporaryGoogleUser.email || '';
+            if(!appData.projects) appData.projects = [];
             
-            // Transition out
-            const ob = document.getElementById('onboarding-screen');
-            ob.style.opacity = '0';
-            ob.style.transform = 'scale(0.95)';
-            
-            setTimeout(() => {
-                ob.classList.add('hidden');
-                showPortfolio();
-            }, 600);
-        }
-
-        // --- DATA PERSISTENCE ---
-        function saveData() {
             try {
-                localStorage.setItem('portfolioData', JSON.stringify(appData));
+                await setDoc(doc(db, "users", temporaryGoogleUser.uid), appData);
+                const ob = document.getElementById('onboarding-screen');
+                ob.style.opacity = '0';
+                ob.style.transform = 'scale(0.95)';
+                
+                setTimeout(() => {
+                    ob.classList.add('hidden');
+                    showPortfolio();
+                }, 600);
+            } catch(err) {
+                console.error(err);
+                showToast("Error creating your profile.");
+            }
+        };
+
+        async function saveDatabase() {
+            if (isReadOnly || !currentUserUid) return;
+            try {
+                await updateDoc(doc(db, "users", currentUserUid), {
+                    projects: appData.projects
+                });
             } catch (e) {
-                if (e.name === 'QuotaExceededError') {
-                    showToast('Storage limit reached. Try smaller images.');
-                } else {
-                    console.error(e);
-                }
+                console.error(e);
+                showToast('Failed to sync changes to database.');
             }
         }
 
-        function resetProfile() {
-            if(confirm("Are you sure you want to reset your profile? This will delete all saved projects and settings.")) {
-                localStorage.removeItem('portfolioData');
-                location.reload();
+        window.signOutUser = async () => {
+            if(isReadOnly) {
+                // If viewing someone else's portfolio, just go to the base URL to log into own
+                window.location.href = window.location.origin + window.location.pathname;
+                return;
             }
-        }
+            if(confirm("Are you sure you want to sign out?")) {
+                await signOut(auth);
+                window.location.reload();
+            }
+        };
 
-        // --- PORTFOLIO LOGIC ---
         function showPortfolio() {
             const ps = document.getElementById('portfolio-screen');
             ps.classList.remove('hidden');
             
+            // Adjust UI for Read-Only vs Editable
+            const addBtn = document.getElementById('add-project-btn');
+            const shareBanner = document.getElementById('share-banner');
+            const authActionBtn = document.getElementById('auth-action-btn');
+
+            if (isReadOnly) {
+                if(addBtn) addBtn.classList.add('hidden');
+                if(shareBanner) shareBanner.classList.add('hidden');
+                if(authActionBtn) {
+                    authActionBtn.innerHTML = `<i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Create Your Own</span>`;
+                }
+            } else {
+                if(addBtn) addBtn.classList.remove('hidden');
+                if(shareBanner) shareBanner.classList.remove('hidden');
+                if(authActionBtn) {
+                    authActionBtn.innerHTML = `<i data-lucide="log-out" class="w-4 h-4"></i><span class="hidden sm:inline">Sign Out</span>`;
+                }
+                const link = `${window.location.origin}${window.location.pathname}?user=${currentUserUid}`;
+                document.getElementById('share-link-text').textContent = link;
+            }
+
             // Populate Data
-            document.getElementById('nav-initials').textContent = appData.name.charAt(0).toUpperCase();
-            document.getElementById('nav-name').textContent = appData.name.split(' ')[0];
-            document.getElementById('hero-name').textContent = appData.name;
-            document.getElementById('footer-name').textContent = appData.name;
+            document.getElementById('nav-initials').textContent = appData.name ? appData.name.charAt(0).toUpperCase() : 'P';
+            document.getElementById('nav-name').textContent = appData.name ? appData.name.split(' ')[0] : 'User';
+            document.getElementById('hero-name').textContent = appData.name || 'User';
+            document.getElementById('footer-name').textContent = appData.name || 'User';
             
-            // Contact setup
             const emailLink = document.getElementById('contact-email-link');
-            emailLink.textContent = appData.email;
-            emailLink.href = `mailto:${appData.email}`;
+            emailLink.textContent = appData.email || 'Contact';
+            emailLink.href = appData.email ? `mailto:${appData.email}` : '#';
 
             renderSkills();
             updateStats();
@@ -535,7 +614,7 @@
             const container = document.getElementById('skills-container');
             container.innerHTML = '';
             
-            appData.skills.forEach(skill => {
+            (appData.skills || []).forEach(skill => {
                 const conf = SKILL_CONFIG[skill];
                 if(conf) {
                     container.innerHTML += `
@@ -552,14 +631,13 @@
         }
 
         function updateStats() {
-            document.getElementById('stat-completed').textContent = appData.projects.length;
+            document.getElementById('stat-completed').textContent = appData.projects ? appData.projects.length : 0;
         }
 
-        // --- PROJECT MANAGEMENT ---
         function setupProjectCategories() {
             const select = document.getElementById('proj-category');
             select.innerHTML = '';
-            appData.skills.forEach(skill => {
+            (appData.skills || []).forEach(skill => {
                 select.innerHTML += `<option value="${skill}">${SKILL_CONFIG[skill].label}</option>`;
             });
             renderProjectFilters();
@@ -571,7 +649,7 @@
                 <button onclick="setFilter('all')" class="px-4 py-2 rounded-full text-sm font-semibold transition-colors ${currentFilter === 'all' ? 'bg-white text-dark-base' : 'bg-dark-card text-gray-400 hover:text-white'}">All</button>
             `;
             
-            appData.skills.forEach(skill => {
+            (appData.skills || []).forEach(skill => {
                 const isActive = currentFilter === skill;
                 container.innerHTML += `
                     <button onclick="setFilter('${skill}')" class="px-4 py-2 rounded-full text-sm font-semibold transition-colors ${isActive ? 'bg-white text-dark-base' : 'bg-dark-card text-gray-400 hover:text-white'}">${SKILL_CONFIG[skill].label}</button>
@@ -579,30 +657,32 @@
             });
         }
 
-        function setFilter(filter) {
+        window.setFilter = (filter) => {
             currentFilter = filter;
             renderProjectFilters();
             renderProjects();
-        }
+        };
 
         function renderProjects() {
             const grid = document.getElementById('projects-grid');
             grid.innerHTML = '';
 
+            const projectList = appData.projects || [];
             const filtered = currentFilter === 'all' 
-                ? appData.projects 
-                : appData.projects.filter(p => p.category === currentFilter);
+                ? projectList 
+                : projectList.filter(p => p.category === currentFilter);
 
             if (filtered.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full py-12 text-center border-2 border-dashed border-dark-border rounded-2xl">
                         <i data-lucide="folder-open" class="w-10 h-10 text-gray-600 mx-auto mb-3"></i>
-                        <p class="text-gray-400 text-sm">No projects found. Add one to get started!</p>
+                        <p class="text-gray-400 text-sm">No projects found.</p>
                     </div>
                 `;
             } else {
-                // Reverse to show newest first
                 [...filtered].reverse().forEach((proj, idx) => {
+                    const deleteBtnHtml = isReadOnly ? '' : `<button onclick="deleteProject('${proj.id}')" class="absolute top-3 right-3 p-1.5 bg-red-500/80 hover:bg-red-500 backdrop-blur rounded text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+
                     grid.innerHTML += `
                         <div class="group rounded-2xl overflow-hidden glass-card border border-dark-border flex flex-col animate-fade-in" style="animation-delay: ${idx * 0.1}s">
                             <div class="relative h-48 bg-dark-card overflow-hidden">
@@ -610,9 +690,7 @@
                                 <div class="absolute top-3 left-3 bg-black/60 backdrop-blur text-[10px] uppercase font-bold px-2 py-1 rounded text-white border border-white/10">
                                     ${SKILL_CONFIG[proj.category]?.label || proj.category}
                                 </div>
-                                <button onclick="deleteProject('${proj.id}')" class="absolute top-3 right-3 p-1.5 bg-red-500/80 hover:bg-red-500 backdrop-blur rounded text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Delete">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
+                                ${deleteBtnHtml}
                             </div>
                             <div class="p-5 flex flex-col flex-grow">
                                 <h4 class="text-lg font-bold text-white mb-2 line-clamp-1">${proj.title}</h4>
@@ -625,20 +703,20 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        function openProjectModal() {
+        window.openProjectModal = () => {
+            if(isReadOnly) return;
             document.getElementById('add-project-form').reset();
             document.getElementById('proj-image-preview').classList.add('hidden');
             document.getElementById('proj-image-preview').src = '';
             tempBase64Image = '';
             document.getElementById('project-modal').classList.remove('hidden');
-        }
+        };
 
-        function closeProjectModal() {
+        window.closeProjectModal = () => {
             document.getElementById('project-modal').classList.add('hidden');
-        }
+        };
 
-        // Simple client-side resize to prevent localStorage quota issues
-        function handleImageUpload(e) {
+        window.handleImageUpload = (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -646,7 +724,6 @@
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
-                    // Resize logic
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 800;
                     const MAX_HEIGHT = 800;
@@ -669,7 +746,6 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Compress as JPEG
                     tempBase64Image = canvas.toDataURL('image/jpeg', 0.8);
                     
                     const preview = document.getElementById('proj-image-preview');
@@ -679,10 +755,11 @@
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
-        }
+        };
 
-        function handleProjectSubmit(e) {
+        window.handleProjectSubmit = async (e) => {
             e.preventDefault();
+            if(isReadOnly) return;
             if (!tempBase64Image) {
                 showToast("Please upload an image.");
                 return;
@@ -700,27 +777,39 @@
                 image: tempBase64Image
             };
 
+            if(!appData.projects) appData.projects = [];
             appData.projects.push(newProject);
-            saveData();
             
             closeProjectModal();
             updateStats();
             renderProjects();
+            await saveDatabase();
             showToast("Project added successfully!");
-        }
+        };
 
-        function deleteProject(id) {
+        window.deleteProject = async (id) => {
+            if(isReadOnly) return;
             if(confirm("Delete this project?")) {
                 appData.projects = appData.projects.filter(p => p.id !== id);
-                saveData();
                 updateStats();
                 renderProjects();
+                await saveDatabase();
                 showToast("Project deleted.");
             }
-        }
+        };
 
-        // --- UTILS ---
-        function copyEmailToClipboard() {
+        window.copyShareLink = () => {
+            const linkText = document.getElementById('share-link-text').textContent;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(linkText).then(() => {
+                    showToast('Share link copied!');
+                }).catch(() => fallbackCopy(linkText));
+            } else {
+                fallbackCopy(linkText);
+            }
+        };
+
+        window.copyEmailToClipboard = () => {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(appData.email).then(() => {
                     showToast('Email copied to clipboard!');
@@ -728,7 +817,7 @@
             } else {
                 fallbackCopy(appData.email);
             }
-        }
+        };
 
         function fallbackCopy(text) {
             const ta = document.createElement("textarea");
@@ -738,9 +827,9 @@
             ta.select();
             try {
                 document.execCommand('copy');
-                showToast('Email copied to clipboard!');
+                showToast('Copied to clipboard!');
             } catch (err) {
-                showToast('Failed to copy email.');
+                showToast('Failed to copy.');
             }
             document.body.removeChild(ta);
         }
@@ -756,33 +845,10 @@
             }, 3000);
         }
 
-        function toggleMobileMenu() {
+        window.toggleMobileMenu = () => {
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
-        }
+        };
     </script>
-    <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyAs_ep4eiET7esNi0XFpLkaL6_QQIiUr_k",
-    authDomain: "silent-coder-portfolio.firebaseapp.com",
-    projectId: "silent-coder-portfolio",
-    storageBucket: "silent-coder-portfolio.firebasestorage.app",
-    messagingSenderId: "479634593024",
-    appId: "1:479634593024:web:fd150a0d76f21f1a798fe5",
-    measurementId: "G-JDH10N42J4"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
 </body>
 </html>
