@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Personalized Portfolio</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            base: '#0b0f19',
+                            card: '#151c2c',
+                            border: '#222f47',
+                            hover: '#1b253b'
+                        },
+                        brand: {
+                            accent: '#8b5cf6', // Primary purple accent
+                            secondary: '#06b6d4',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(1rem)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --glass-bg: rgba(21, 28, 44, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            /* Use relative units for base font to allow user scaling */
+            font-size: 1rem; 
+        }
+
+        /* Glassmorphism utilities */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(1rem);
+            -webkit-backdrop-filter: blur(1rem);
+            border: 1px solid var(--glass-border);
+        }
+
+        .glass-nav {
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(1.5rem);
+            -webkit-backdrop-filter: blur(1.5rem);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        /* Skill Selection Styling */
+        .skill-card-selected {
+            border-color: #8b5cf6 !important;
+            background: rgba(139, 92, 246, 0.15) !important;
+            box-shadow: 0 0 1.5rem rgba(139, 92, 246, 0.2);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 0.5rem; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #222f47; border-radius: 0.25rem; }
+        ::-webkit-scrollbar-thumb:hover { background: #8b5cf6; }
+
+        /* Smooth transitions */
+        .page-transition {
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen selection:bg-brand-accent selection:text-white">
+
+    <!-- Ambient background dots -->
+    <div class="fixed inset-0 pointer-events-none z-0" style="background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 3rem 3rem;"></div>
+
+    <!-- ========================================== -->
+    <!-- STEP 1: ONBOARDING SCREEN                  -->
+    <!-- ========================================== -->
+    <div id="onboarding-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-base page-transition">
+        <div class="relative w-full max-w-2xl p-6 sm:p-10 rounded-2xl glass-card shadow-2xl">
+            
+            <div class="text-center mb-8">
+                <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">
+                    Set Up Your <span class="gradient-text">Portfolio</span>
+                </h1>
+                <p class="text-gray-400 text-sm">Enter your details to generate your customized experience.</p>
+            </div>
+
+            <form id="onboarding-form" onsubmit="handleOnboardingSubmit(event)" class="space-y-6">
+                <!-- Name Input -->
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-400 mb-2">What's your name?</label>
+                    <input 
+                        type="text" 
+                        id="user-name-input" 
+                        required
+                        placeholder="e.g., Alex Rivera" 
+                        class="w-full px-4 py-3 bg-dark-base border border-dark-border rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-accent transition-colors text-sm"
+                        oninput="validateOnboardingForm()"
+                    />
+                </div>
+
+                <!-- Gmail Input -->
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-400 mb-2">Your Gmail Address</label>
+                    <input 
+                        type="email" 
+                        id="user-email-input" 
+                        required
+                        placeholder="e.g., alex.rivera@gmail.com" 
+                        class="w-full px-4 py-3 bg-dark-base border border-dark-border rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-accent transition-colors text-sm"
+                        oninput="validateOnboardingForm()"
+                    />
+                </div>
+
+                <!-- Multi-select Skills -->
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-semibold text-gray-400 mb-2">
+                        What do you do? <span class="lowercase text-gray-500 font-normal">(Select all that apply)</span>
+                    </label>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Coding -->
+                        <div onclick="toggleSkillCard('coding')" id="card-coding" class="cursor-pointer relative p-4 rounded-xl border border-dark-border bg-dark-base/50 hover:border-brand-accent/50 transition-all flex flex-col items-center text-center">
+                            <i data-lucide="code" class="w-6 h-6 text-gray-400 mb-2" id="icon-coding"></i>
+                            <span class="font-semibold text-sm text-gray-200">Coding</span>
+                        </div>
+                        <!-- Editing -->
+                        <div onclick="toggleSkillCard('editing')" id="card-editing" class="cursor-pointer relative p-4 rounded-xl border border-dark-border bg-dark-base/50 hover:border-brand-accent/50 transition-all flex flex-col items-center text-center">
+                            <i data-lucide="video" class="w-6 h-6 text-gray-400 mb-2" id="icon-editing"></i>
+                            <span class="font-semibold text-sm text-gray-200">Editing</span>
+                        </div>
+                        <!-- Thumbnail Designing -->
+                        <div onclick="toggleSkillCard('thumbnails')" id="card-thumbnails" class="cursor-pointer relative p-4 rounded-xl border border-dark-border bg-dark-base/50 hover:border-brand-accent/50 transition-all flex flex-col items-center text-center">
+                            <i data-lucide="image" class="w-6 h-6 text-gray-400 mb-2" id="icon-thumbnails"></i>
+                            <span class="font-semibold text-sm text-gray-200">Thumbnail Design</span>
+                        </div>
+                    </div>
+                    <p id="skill-error" class="text-xs text-rose-400 mt-2 hidden">Please select at least one skill.</p>
+                </div>
+
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    id="submit-onboarding-btn" 
+                    disabled 
+                    class="w-full py-4 rounded-xl font-bold text-white bg-brand-accent hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg flex justify-center items-center gap-2"
+                >
+                    Continue to Portfolio <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- STEP 2: MAIN PORTFOLIO SCREEN              -->
+    <!-- ========================================== -->
+    <div id="portfolio-screen" class="relative z-10 hidden opacity-0 page-transition flex flex-col min-h-screen">
+        
+        <!-- HEADER -->
+        <header class="sticky top-0 z-40 w-full glass-nav">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+                <!-- Logo -->
+                <a href="#hero" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-brand-accent flex items-center justify-center font-bold text-white">
+                        <span id="nav-initials">P</span>
+                    </div>
+                    <span id="nav-name" class="font-bold text-lg text-white hidden sm:block">Portfolio</span>
+                </a>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
+                    <a href="#skills" class="hover:text-brand-accent transition-colors">Skills</a>
+                    <a href="#projects" class="hover:text-brand-accent transition-colors">Projects</a>
+                    <a href="#contact" class="hover:text-brand-accent transition-colors">Contact</a>
+                </nav>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <button onclick="resetProfile()" class="px-3 py-2 rounded-lg text-xs font-semibold text-gray-400 hover:text-white border border-dark-border hover:border-brand-accent transition-colors flex items-center gap-2">
+                        <i data-lucide="settings-2" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Edit Profile</span>
+                    </button>
+                    <!-- Mobile Menu Toggle -->
+                    <button onclick="toggleMobileMenu()" class="p-2 md:hidden text-gray-400 hover:text-white">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="hidden md:hidden border-t border-dark-border bg-dark-base px-4 py-4 space-y-2">
+                <a href="#skills" onclick="toggleMobileMenu()" class="block p-2 text-gray-300">Skills</a>
+                <a href="#projects" onclick="toggleMobileMenu()" class="block p-2 text-gray-300">Projects</a>
+                <a href="#contact" onclick="toggleMobileMenu()" class="block p-2 text-gray-300">Contact</a>
+            </div>
+        </header>
+
+        <main class="flex-grow">
+            <!-- HERO SECTION -->
+            <section id="hero" class="py-20 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
+                <h1 class="text-4xl sm:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight max-w-4xl animate-slide-up">
+                    Hi, I'm <span id="hero-name" class="gradient-text">Name</span>.
+                </h1>
+                <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl animate-fade-in" style="animation-delay: 0.2s;">
+                    Welcome to my specialized workspace.
+                </p>
+
+                <!-- STATS -->
+                <div class="mt-12 w-full max-w-2xl grid grid-cols-2 md:grid-cols-3 gap-4 animate-fade-in" style="animation-delay: 0.4s;">
+                    <div class="p-4 rounded-xl glass-card flex flex-col items-center justify-center">
+                        <div id="stat-completed" class="text-3xl font-bold text-brand-accent mb-1">0</div>
+                        <div class="text-xs text-gray-400 uppercase tracking-wider">Completed Work</div>
+                    </div>
+                    <div class="p-4 rounded-xl glass-card flex flex-col items-center justify-center">
+                        <div class="text-3xl font-bold text-white mb-1">100%</div>
+                        <div class="text-xs text-gray-400 uppercase tracking-wider">Client Satisfaction</div>
+                    </div>
+                    <div class="p-4 rounded-xl glass-card flex flex-col items-center justify-center col-span-2 md:col-span-1">
+                        <div class="text-3xl font-bold text-white mb-1">98%</div>
+                        <div class="text-xs text-gray-400 uppercase tracking-wider">Quality Score</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SKILLS SECTION -->
+            <section id="skills" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-dark-border">
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mb-8 text-center">Core Disciplines</h2>
+                <div id="skills-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    <!-- Skills dynamically injected here -->
+                </div>
+            </section>
+
+            <!-- PROJECTS SECTION -->
+            <section id="projects" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-dark-border">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white">Project Showcase</h2>
+                    <button onclick="openProjectModal()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-brand-accent text-white transition-colors flex items-center gap-2 text-sm font-semibold border border-white/20 hover:border-brand-accent">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add Project
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div id="project-filters" class="flex flex-wrap gap-2 mb-8 border-b border-dark-border pb-4">
+                    <!-- Filters injected here -->
+                </div>
+
+                <!-- Grid -->
+                <div id="projects-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Projects injected here -->
+                </div>
+            </section>
+
+            <!-- CONTACT SECTION -->
+            <section id="contact" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-dark-border text-center">
+                <div class="max-w-3xl mx-auto glass-card rounded-3xl p-8 sm:p-16 border border-dark-border/50 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-brand-accent/5 blur-[100px] pointer-events-none"></div>
+                    
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 relative z-10">Let's Connect</h2>
+                    <p class="text-gray-400 mb-8 max-w-xl mx-auto relative z-10">Interested in working together? Reach out directly via email. I usually respond within 24 hours.</p>
+                    
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
+                        <a id="contact-email-link" href="mailto:test@example.com" class="text-xl sm:text-2xl font-bold text-brand-accent hover:text-purple-400 transition-colors break-all">
+                            test@example.com
+                        </a>
+                        <button onclick="copyEmailToClipboard()" class="p-3 rounded-full bg-dark-border hover:bg-white/20 transition-colors text-white" title="Copy to clipboard">
+                            <i data-lucide="copy" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="py-6 border-t border-dark-border text-center text-sm text-gray-500">
+            <p>&copy; <span id="year"></span> <span id="footer-name">Portfolio</span>. Built with HTML, CSS, & JS.</p>
+        </footer>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ADD PROJECT MODAL                          -->
+    <!-- ========================================== -->
+    <div id="project-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="relative w-full max-w-lg bg-dark-card border border-dark-border rounded-2xl shadow-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeProjectModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <h3 class="text-xl font-bold text-white mb-6">Add New Project</h3>
+            
+            <form id="add-project-form" onsubmit="handleProjectSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Title</label>
+                    <input type="text" id="proj-title" required class="w-full px-4 py-2 bg-dark-base border border-dark-border rounded-lg text-white text-sm focus:border-brand-accent outline-none"/>
+                </div>
+                
+                <div>
+                    <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Category</label>
+                    <select id="proj-category" required class="w-full px-4 py-2 bg-dark-base border border-dark-border rounded-lg text-white text-sm focus:border-brand-accent outline-none">
+                        <!-- Options injected dynamically based on skills -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Description</label>
+                    <textarea id="proj-desc" required rows="3" class="w-full px-4 py-2 bg-dark-base border border-dark-border rounded-lg text-white text-sm focus:border-brand-accent outline-none resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Upload Image (Max ~2MB)</label>
+                    <input type="file" id="proj-image" accept="image/*" required onchange="handleImageUpload(event)" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-accent file:text-white hover:file:bg-purple-500 cursor-pointer"/>
+                    <img id="proj-image-preview" src="" class="hidden mt-2 rounded-lg max-h-32 object-cover w-full border border-dark-border" />
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" onclick="closeProjectModal()" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-sm font-bold bg-brand-accent text-white hover:bg-purple-500">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-4 right-4 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-dark-card border border-dark-border text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-3">
+        <i data-lucide="info" class="w-5 h-5 text-brand-accent"></i>
+        <span id="toast-msg" class="text-sm font-medium">Message</span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC                           -->
+    <!-- ========================================== -->
+    <script>
+        // Data Schema
+        let appData = {
+            name: '',
+            email: '',
+            skills: [], // 'coding', 'editing', 'thumbnails'
+            projects: [] 
+        };
+
+        let tempBase64Image = '';
+        let currentFilter = 'all';
+
+        // Constants
+        const SKILL_CONFIG = {
+            coding: { label: 'Coding', icon: 'code', desc: 'Developing clean, modern, and responsive applications.' },
+            editing: { label: 'Editing', icon: 'video', desc: 'Crafting compelling visual stories through video.' },
+            thumbnails: { label: 'Thumbnail Design', icon: 'image', desc: 'Designing high-CTR visual graphics.' }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('year').textContent = new Date().getFullYear();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            init();
+        });
+
+        function init() {
+            const savedData = localStorage.getItem('portfolioData');
+            
+            if (savedData) {
+                try {
+                    appData = JSON.parse(savedData);
+                    // Minimal validation to ensure data isn't corrupt
+                    if(appData.name && appData.email && appData.skills.length > 0) {
+                        showPortfolio();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Error parsing localStorage data', e);
+                }
+            }
+            // Fallback to onboarding
+            showOnboarding();
+        }
+
+        // --- ONBOARDING LOGIC ---
+        function showOnboarding() {
+            document.getElementById('portfolio-screen').classList.add('hidden');
+            document.getElementById('onboarding-screen').classList.remove('hidden');
+            // Small delay to trigger transition
+            setTimeout(() => {
+                document.getElementById('onboarding-screen').style.opacity = '1';
+                document.getElementById('onboarding-screen').style.transform = 'scale(1)';
+            }, 50);
+        }
+
+        function toggleSkillCard(skill) {
+            const index = appData.skills.indexOf(skill);
+            const card = document.getElementById(`card-${skill}`);
+            const icon = document.getElementById(`icon-${skill}`);
+
+            if (index === -1) {
+                appData.skills.push(skill);
+                card.classList.add('skill-card-selected');
+                icon.classList.remove('text-gray-400');
+                icon.classList.add('text-brand-accent');
+            } else {
+                appData.skills.splice(index, 1);
+                card.classList.remove('skill-card-selected');
+                icon.classList.add('text-gray-400');
+                icon.classList.remove('text-brand-accent');
+            }
+            validateOnboardingForm();
+        }
+
+        function validateOnboardingForm() {
+            const name = document.getElementById('user-name-input').value.trim();
+            const email = document.getElementById('user-email-input').value.trim();
+            const btn = document.getElementById('submit-onboarding-btn');
+            const error = document.getElementById('skill-error');
+            
+            const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            const hasSkills = appData.skills.length > 0;
+
+            if (!hasSkills && name.length > 0) {
+                error.classList.remove('hidden');
+            } else {
+                error.classList.add('hidden');
+            }
+
+            btn.disabled = !(name && isValidEmail && hasSkills);
+        }
+
+        function handleOnboardingSubmit(e) {
+            e.preventDefault();
+            appData.name = document.getElementById('user-name-input').value.trim();
+            appData.email = document.getElementById('user-email-input').value.trim();
+            
+            saveData();
+            
+            // Transition out
+            const ob = document.getElementById('onboarding-screen');
+            ob.style.opacity = '0';
+            ob.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                ob.classList.add('hidden');
+                showPortfolio();
+            }, 600);
+        }
+
+        // --- DATA PERSISTENCE ---
+        function saveData() {
+            try {
+                localStorage.setItem('portfolioData', JSON.stringify(appData));
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    showToast('Storage limit reached. Try smaller images.');
+                } else {
+                    console.error(e);
+                }
+            }
+        }
+
+        function resetProfile() {
+            if(confirm("Are you sure you want to reset your profile? This will delete all saved projects and settings.")) {
+                localStorage.removeItem('portfolioData');
+                location.reload();
+            }
+        }
+
+        // --- PORTFOLIO LOGIC ---
+        function showPortfolio() {
+            const ps = document.getElementById('portfolio-screen');
+            ps.classList.remove('hidden');
+            
+            // Populate Data
+            document.getElementById('nav-initials').textContent = appData.name.charAt(0).toUpperCase();
+            document.getElementById('nav-name').textContent = appData.name.split(' ')[0];
+            document.getElementById('hero-name').textContent = appData.name;
+            document.getElementById('footer-name').textContent = appData.name;
+            
+            // Contact setup
+            const emailLink = document.getElementById('contact-email-link');
+            emailLink.textContent = appData.email;
+            emailLink.href = `mailto:${appData.email}`;
+
+            renderSkills();
+            updateStats();
+            setupProjectCategories();
+            renderProjects();
+
+            setTimeout(() => {
+                ps.classList.remove('opacity-0');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, 50);
+        }
+
+        function renderSkills() {
+            const container = document.getElementById('skills-container');
+            container.innerHTML = '';
+            
+            appData.skills.forEach(skill => {
+                const conf = SKILL_CONFIG[skill];
+                if(conf) {
+                    container.innerHTML += `
+                        <div class="p-6 rounded-2xl glass-card border border-dark-border flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
+                            <div class="w-12 h-12 rounded-xl bg-brand-accent/20 flex items-center justify-center mb-4">
+                                <i data-lucide="${conf.icon}" class="w-6 h-6 text-brand-accent"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">${conf.label}</h3>
+                            <p class="text-sm text-gray-400">${conf.desc}</p>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('stat-completed').textContent = appData.projects.length;
+        }
+
+        // --- PROJECT MANAGEMENT ---
+        function setupProjectCategories() {
+            const select = document.getElementById('proj-category');
+            select.innerHTML = '';
+            appData.skills.forEach(skill => {
+                select.innerHTML += `<option value="${skill}">${SKILL_CONFIG[skill].label}</option>`;
+            });
+            renderProjectFilters();
+        }
+
+        function renderProjectFilters() {
+            const container = document.getElementById('project-filters');
+            container.innerHTML = `
+                <button onclick="setFilter('all')" class="px-4 py-2 rounded-full text-sm font-semibold transition-colors ${currentFilter === 'all' ? 'bg-white text-dark-base' : 'bg-dark-card text-gray-400 hover:text-white'}">All</button>
+            `;
+            
+            appData.skills.forEach(skill => {
+                const isActive = currentFilter === skill;
+                container.innerHTML += `
+                    <button onclick="setFilter('${skill}')" class="px-4 py-2 rounded-full text-sm font-semibold transition-colors ${isActive ? 'bg-white text-dark-base' : 'bg-dark-card text-gray-400 hover:text-white'}">${SKILL_CONFIG[skill].label}</button>
+                `;
+            });
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            renderProjectFilters();
+            renderProjects();
+        }
+
+        function renderProjects() {
+            const grid = document.getElementById('projects-grid');
+            grid.innerHTML = '';
+
+            const filtered = currentFilter === 'all' 
+                ? appData.projects 
+                : appData.projects.filter(p => p.category === currentFilter);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center border-2 border-dashed border-dark-border rounded-2xl">
+                        <i data-lucide="folder-open" class="w-10 h-10 text-gray-600 mx-auto mb-3"></i>
+                        <p class="text-gray-400 text-sm">No projects found. Add one to get started!</p>
+                    </div>
+                `;
+            } else {
+                // Reverse to show newest first
+                [...filtered].reverse().forEach((proj, idx) => {
+                    grid.innerHTML += `
+                        <div class="group rounded-2xl overflow-hidden glass-card border border-dark-border flex flex-col animate-fade-in" style="animation-delay: ${idx * 0.1}s">
+                            <div class="relative h-48 bg-dark-card overflow-hidden">
+                                <img src="${proj.image}" alt="${proj.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/>
+                                <div class="absolute top-3 left-3 bg-black/60 backdrop-blur text-[10px] uppercase font-bold px-2 py-1 rounded text-white border border-white/10">
+                                    ${SKILL_CONFIG[proj.category]?.label || proj.category}
+                                </div>
+                                <button onclick="deleteProject('${proj.id}')" class="absolute top-3 right-3 p-1.5 bg-red-500/80 hover:bg-red-500 backdrop-blur rounded text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Delete">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <div class="p-5 flex flex-col flex-grow">
+                                <h4 class="text-lg font-bold text-white mb-2 line-clamp-1">${proj.title}</h4>
+                                <p class="text-sm text-gray-400 line-clamp-3">${proj.description}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function openProjectModal() {
+            document.getElementById('add-project-form').reset();
+            document.getElementById('proj-image-preview').classList.add('hidden');
+            document.getElementById('proj-image-preview').src = '';
+            tempBase64Image = '';
+            document.getElementById('project-modal').classList.remove('hidden');
+        }
+
+        function closeProjectModal() {
+            document.getElementById('project-modal').classList.add('hidden');
+        }
+
+        // Simple client-side resize to prevent localStorage quota issues
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Resize logic
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Compress as JPEG
+                    tempBase64Image = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    const preview = document.getElementById('proj-image-preview');
+                    preview.src = tempBase64Image;
+                    preview.classList.remove('hidden');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleProjectSubmit(e) {
+            e.preventDefault();
+            if (!tempBase64Image) {
+                showToast("Please upload an image.");
+                return;
+            }
+
+            const title = document.getElementById('proj-title').value.trim();
+            const category = document.getElementById('proj-category').value;
+            const desc = document.getElementById('proj-desc').value.trim();
+
+            const newProject = {
+                id: Date.now().toString(),
+                title: title,
+                category: category,
+                description: desc,
+                image: tempBase64Image
+            };
+
+            appData.projects.push(newProject);
+            saveData();
+            
+            closeProjectModal();
+            updateStats();
+            renderProjects();
+            showToast("Project added successfully!");
+        }
+
+        function deleteProject(id) {
+            if(confirm("Delete this project?")) {
+                appData.projects = appData.projects.filter(p => p.id !== id);
+                saveData();
+                updateStats();
+                renderProjects();
+                showToast("Project deleted.");
+            }
+        }
+
+        // --- UTILS ---
+        function copyEmailToClipboard() {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(appData.email).then(() => {
+                    showToast('Email copied to clipboard!');
+                }).catch(() => fallbackCopy(appData.email));
+            } else {
+                fallbackCopy(appData.email);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast('Email copied to clipboard!');
+            } catch (err) {
+                showToast('Failed to copy email.');
+            }
+            document.body.removeChild(ta);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
