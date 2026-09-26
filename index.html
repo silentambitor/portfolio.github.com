@@ -246,11 +246,11 @@
                         <div class="text-xs text-gray-400 uppercase tracking-wider">Completed Work</div>
                     </div>
                     <div class="p-4 rounded-xl glass-card flex flex-col items-center justify-center">
-                        <div class="text-3xl font-bold text-white mb-1">100%</div>
+                        <div id="stat-satisfaction" class="text-3xl font-bold text-white mb-1">100%</div>
                         <div class="text-xs text-gray-400 uppercase tracking-wider">Client Satisfaction</div>
                     </div>
                     <div class="p-4 rounded-xl glass-card flex flex-col items-center justify-center col-span-2 md:col-span-1">
-                        <div class="text-3xl font-bold text-white mb-1">98%</div>
+                        <div id="stat-quality" class="text-3xl font-bold text-white mb-1">98%</div>
                         <div class="text-xs text-gray-400 uppercase tracking-wider">Quality Score</div>
                     </div>
                 </div>
@@ -281,6 +281,54 @@
                 <!-- Grid -->
                 <div id="projects-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Projects injected here -->
+                </div>
+            </section>
+
+            <!-- CLIENT REVIEWS SECTION (OWNER VIEW) -->
+            <section id="client-reviews-section" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-dark-border hidden">
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mb-8 text-center">Client Reviews</h2>
+                <div id="reviews-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                    <!-- Reviews injected here -->
+                </div>
+            </section>
+
+            <!-- SUBMIT REVIEW SECTION (READ-ONLY VIEW) -->
+            <section id="submit-review-section" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-dark-border hidden">
+                <div class="max-w-2xl mx-auto glass-card rounded-2xl p-6 sm:p-10 border border-dark-border">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2 text-center">Worked with me? Leave your honest feedback</h2>
+                    <p class="text-gray-400 text-sm mb-8 text-center">Your review helps me improve and gives future clients insight into my work.</p>
+                    <form id="review-form" onsubmit="submitClientReview(event)" class="space-y-5">
+                        <!-- Rating -->
+                        <div class="flex flex-col items-center mb-4">
+                            <label class="block text-xs uppercase font-semibold text-gray-400 mb-3">Rate my work</label>
+                            <div id="star-rating-container" class="flex gap-2">
+                                <button type="button" onclick="setRating(1)" onmouseover="hoverRating(1)" onmouseout="resetRatingHover()" class="star-btn text-gray-600 hover:text-yellow-400 transition-colors"><i data-lucide="star" class="w-8 h-8 fill-current"></i></button>
+                                <button type="button" onclick="setRating(2)" onmouseover="hoverRating(2)" onmouseout="resetRatingHover()" class="star-btn text-gray-600 hover:text-yellow-400 transition-colors"><i data-lucide="star" class="w-8 h-8 fill-current"></i></button>
+                                <button type="button" onclick="setRating(3)" onmouseover="hoverRating(3)" onmouseout="resetRatingHover()" class="star-btn text-gray-600 hover:text-yellow-400 transition-colors"><i data-lucide="star" class="w-8 h-8 fill-current"></i></button>
+                                <button type="button" onclick="setRating(4)" onmouseover="hoverRating(4)" onmouseout="resetRatingHover()" class="star-btn text-gray-600 hover:text-yellow-400 transition-colors"><i data-lucide="star" class="w-8 h-8 fill-current"></i></button>
+                                <button type="button" onclick="setRating(5)" onmouseover="hoverRating(5)" onmouseout="resetRatingHover()" class="star-btn text-gray-600 hover:text-yellow-400 transition-colors"><i data-lucide="star" class="w-8 h-8 fill-current"></i></button>
+                            </div>
+                            <input type="hidden" id="review-rating" required>
+                        </div>
+                        <!-- Name -->
+                        <div>
+                            <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Your Name</label>
+                            <input type="text" id="review-name" required class="w-full px-4 py-3 bg-dark-base border border-dark-border rounded-lg text-white text-sm focus:border-brand-accent outline-none transition-colors"/>
+                        </div>
+                        <!-- Feedback -->
+                        <div>
+                            <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Feedback (Optional)</label>
+                            <textarea id="review-text" rows="3" class="w-full px-4 py-3 bg-dark-base border border-dark-border rounded-lg text-white text-sm focus:border-brand-accent outline-none resize-none transition-colors"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-4 mt-4 rounded-xl font-bold text-white bg-brand-accent hover:bg-purple-500 transition-colors shadow-lg">Submit Review</button>
+                    </form>
+                    <div id="review-thank-you" class="hidden text-center py-10">
+                        <div class="w-16 h-16 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center mx-auto mb-4 border border-green-500/30">
+                            <i data-lucide="check" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Thank you!</h3>
+                        <p class="text-gray-400">Your feedback has been submitted successfully.</p>
+                    </div>
                 </div>
             </section>
 
@@ -388,7 +436,8 @@
             name: '',
             email: '',
             skills: [], 
-            projects: [] 
+            projects: [],
+            reviews: []
         };
 
         let tempBase64Image = '';
@@ -396,6 +445,7 @@
         let isReadOnly = false;
         let currentUserUid = null;
         let temporaryGoogleUser = null;
+        let viewUserIdParam = null;
 
         const SKILL_CONFIG = {
             coding: { label: 'Coding', icon: 'code', desc: 'Developing clean, modern, and responsive applications.' },
@@ -412,6 +462,7 @@
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             const viewUserId = urlParams.get('user');
+            viewUserIdParam = viewUserId;
 
             if (viewUserId) {
                 // READ-ONLY MODE
@@ -421,6 +472,7 @@
                     if (docSnap.exists()) {
                         appData = docSnap.data();
                         if (!appData.projects) appData.projects = [];
+                        if (!appData.reviews) appData.reviews = [];
                         showPortfolio();
                     } else {
                         showToast("User portfolio not found.");
@@ -441,6 +493,7 @@
                             if (docSnap.exists()) {
                                 appData = docSnap.data();
                                 if (!appData.projects) appData.projects = [];
+                                if (!appData.reviews) appData.reviews = [];
                                 showPortfolio();
                             } else {
                                 // User signed in but has no Firestore doc yet -> show skills setup
@@ -523,6 +576,7 @@
             appData.name = temporaryGoogleUser.displayName || 'Anonymous';
             appData.email = temporaryGoogleUser.email || '';
             if(!appData.projects) appData.projects = [];
+            if(!appData.reviews) appData.reviews = [];
             
             try {
                 await setDoc(doc(db, "users", temporaryGoogleUser.uid), appData);
@@ -572,6 +626,8 @@
             const addBtn = document.getElementById('add-project-btn');
             const shareBanner = document.getElementById('share-banner');
             const authActionBtn = document.getElementById('auth-action-btn');
+            const reviewSubmitSection = document.getElementById('submit-review-section');
+            const clientReviewsSection = document.getElementById('client-reviews-section');
 
             if (isReadOnly) {
                 if(addBtn) addBtn.classList.add('hidden');
@@ -579,6 +635,8 @@
                 if(authActionBtn) {
                     authActionBtn.innerHTML = `<i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Create Your Own</span>`;
                 }
+                reviewSubmitSection.classList.remove('hidden');
+                clientReviewsSection.classList.add('hidden');
             } else {
                 if(addBtn) addBtn.classList.remove('hidden');
                 if(shareBanner) shareBanner.classList.remove('hidden');
@@ -587,6 +645,10 @@
                 }
                 const link = `${window.location.origin}${window.location.pathname}?user=${currentUserUid}`;
                 document.getElementById('share-link-text').textContent = link;
+                
+                reviewSubmitSection.classList.add('hidden');
+                clientReviewsSection.classList.remove('hidden');
+                renderClientReviews();
             }
 
             // Populate Data
@@ -631,7 +693,35 @@
         }
 
         function updateStats() {
+            // Projects
             document.getElementById('stat-completed').textContent = appData.projects ? appData.projects.length : 0;
+            
+            // Reviews
+            const reviews = appData.reviews || [];
+            const satEl = document.getElementById('stat-satisfaction');
+            const qualEl = document.getElementById('stat-quality');
+            
+            if (reviews.length === 0) {
+                satEl.textContent = 'No reviews yet';
+                satEl.className = 'text-sm font-medium text-gray-400 mb-1 h-9 flex items-center';
+                
+                qualEl.textContent = 'No reviews yet';
+                qualEl.className = 'text-sm font-medium text-gray-400 mb-1 h-9 flex items-center';
+            } else {
+                satEl.className = 'text-3xl font-bold text-white mb-1 h-9 flex items-center';
+                qualEl.className = 'text-3xl font-bold text-white mb-1 h-9 flex items-center';
+                
+                const total = reviews.length;
+                const highRatings = reviews.filter(r => r.rating >= 4).length;
+                const satisfaction = Math.round((highRatings / total) * 100);
+                
+                const sum = reviews.reduce((acc, curr) => acc + curr.rating, 0);
+                const avg = sum / total;
+                const quality = Math.round((avg / 5) * 100);
+                
+                satEl.textContent = `${satisfaction}%`;
+                qualEl.textContent = `${quality}%`;
+            }
         }
 
         function setupProjectCategories() {
@@ -702,6 +792,121 @@
             }
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
+
+        // ==========================================
+        // CLIENT REVIEWS LOGIC
+        // ==========================================
+
+        let currentReviewRating = 0;
+        window.setRating = (val) => {
+            currentReviewRating = val;
+            document.getElementById('review-rating').value = val;
+            updateStarUI(val);
+        };
+        window.hoverRating = (val) => {
+            updateStarUI(val);
+        };
+        window.resetRatingHover = () => {
+            updateStarUI(currentReviewRating);
+        };
+        window.updateStarUI = (val) => {
+            const btns = document.querySelectorAll('.star-btn');
+            btns.forEach((btn, index) => {
+                if (index < val) {
+                    btn.classList.add('text-yellow-400');
+                    btn.classList.remove('text-gray-600');
+                } else {
+                    btn.classList.remove('text-yellow-400');
+                    btn.classList.add('text-gray-600');
+                }
+            });
+        };
+
+        window.submitClientReview = async (e) => {
+            e.preventDefault();
+            const rating = parseInt(document.getElementById('review-rating').value);
+            if (!rating) {
+                showToast("Please select a star rating.");
+                return;
+            }
+            
+            const name = document.getElementById('review-name').value.trim();
+            const text = document.getElementById('review-text').value.trim();
+            
+            const newReview = {
+                id: Date.now().toString(),
+                name: name,
+                rating: rating,
+                text: text,
+                timestamp: new Date().toISOString()
+            };
+            
+            if(!appData.reviews) appData.reviews = [];
+            appData.reviews.push(newReview);
+            
+            try {
+                await updateDoc(doc(db, "users", viewUserIdParam), {
+                    reviews: appData.reviews
+                });
+                
+                document.getElementById('review-form').classList.add('hidden');
+                document.getElementById('review-thank-you').classList.remove('hidden');
+                
+                updateStats(); // Update live stats visually on screen immediately
+            } catch(err) {
+                console.error(err);
+                showToast("Failed to submit review. Try again.");
+                // Remove locally if failed
+                appData.reviews.pop();
+            }
+        };
+
+        function renderClientReviews() {
+            const grid = document.getElementById('reviews-grid');
+            const reviews = appData.reviews || [];
+            grid.innerHTML = '';
+            
+            if (reviews.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center border-2 border-dashed border-dark-border rounded-2xl">
+                        <i data-lucide="message-square" class="w-10 h-10 text-gray-600 mx-auto mb-3"></i>
+                        <p class="text-gray-400 text-sm">No client reviews yet.</p>
+                    </div>
+                `;
+            } else {
+                [...reviews].sort((a,b) => b.id - a.id).forEach((rev, idx) => {
+                    let starsHtml = '';
+                    for(let i=1; i<=5; i++) {
+                        if (i <= rev.rating) {
+                            starsHtml += `<i data-lucide="star" class="w-4 h-4 fill-current text-yellow-400"></i>`;
+                        } else {
+                            starsHtml += `<i data-lucide="star" class="w-4 h-4 text-gray-600"></i>`;
+                        }
+                    }
+                    
+                    const dateObj = new Date(parseInt(rev.id));
+                    const dateStr = dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                    
+                    grid.innerHTML += `
+                        <div class="p-6 rounded-2xl glass-card border border-dark-border flex flex-col animate-fade-in" style="animation-delay: ${idx * 0.1}s">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="font-bold text-white">${rev.name}</div>
+                                <div class="text-xs text-gray-500">${dateStr}</div>
+                            </div>
+                            <div class="flex gap-1 mb-3">
+                                ${starsHtml}
+                            </div>
+                            ${rev.text ? `<p class="text-sm text-gray-300 italic">"${rev.text}"</p>` : ''}
+                        </div>
+                    `;
+                });
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // ==========================================
+        // PROJECT MODAL & UTILS LOGIC
+        // ==========================================
 
         window.openProjectModal = () => {
             if(isReadOnly) return;
